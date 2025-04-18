@@ -1,12 +1,7 @@
 clear all
 close all
 
-%% Решение с помощью dsolve
-ySol1 = dsolve('3*D2y + 24*Dy + 96*y = 0', 'y(0) = 1', 'Dy(0)=2');
-
-disp('Решение dsolve:');
-disp(ySol1);
-
+%% Однородное уравнение
 %% Операторный метод с residue (численный)
 % Коэффициенты уравнения: 3y'' + 24y' + 96y = 0
 % Характеристическое уравнение: 3s^2 + 24s + 96 = 0
@@ -22,7 +17,7 @@ den = [3 24 96]; % Знаменатель (3s^2 + 24s + 96)
 [r, p, k] = residue(num, den);
 
 % Обратное преобразование Лапласа
-t = linspace(0, 10, 1000);
+t = linspace(0, 5, 100);
 y_residue = zeros(size(t));
 
 for i = 1:length(r)
@@ -34,15 +29,51 @@ plot(t, y_residue, 'b',LineWidth=2);
 hold on;
 
 %Рисуем аналитическое решение, полученное "вручную"
-t = linspace(0, 10, 100);
+t = linspace(0, 5, 100);
 yAnSol = exp(-4*t).*(cos(4*t) + sin(4*t));
 
-plot(t, yAnSol, 'r', LineWidth=2)
+plot(t, yAnSol, 'r--', LineWidth=2)
 
 grid on;
 xlabel('Время t');
 ylabel('Решение y(t)');
 title('Решение дифференциального уравнения 3y" + 24y'' + 96y = 0');
+legend('matlab', 'вручную');
+hold off;
+
+
+%% Неоднородное уравнение
+%% Преобразование Лапласа с использованием ilaplace
+syms y(t)
+syms p F
+% Уравнение в пространстве Лапласа
+eqn_laplace = p^3*F - p^2*3 - p*5 - (-66) + 7*(p^2*F - p*3 - 5) + 12*(p*F - 3) == 5/(p+3);
+
+% Решаем относительно F
+F_sol = solve(eqn_laplace, F);
+
+% Обратное преобразование Лапласа
+y_sol_ilaplace = ilaplace(F_sol);
+
+t_vals = linspace(0, 5, 100);
+% Преобразуем символьное решение в числовой массив
+y_laplace = double(subs(y_sol_ilaplace, t, t_vals));
+
+% Строим графики
+figure();
+%Рисует график решения, полученного с моиощью matlab 
+plot(t_vals, y_laplace, 'b', 'LineWidth', 2);
+hold on;
+
+%Рисуем аналитическое решение, полученное "вручную"
+t = linspace(0, 5, 100);
+yAnSol = (5/9) + ((148/9) + (5/3)*t).*exp(-3*t) - 14*exp(-4*t);
+
+plot(t, yAnSol, 'r--', LineWidth=2)
+
+xlabel('Время t');
+ylabel('Решение y(t)');
+title('Решение дифференциального уравнения');
 legend('matlab', 'вручную');
 hold off;
 
