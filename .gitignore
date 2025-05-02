@@ -75,7 +75,11 @@ compile_commands.json
 # QtCreator local machine specific files for imported projects
 *creator.user*
 
+# Matlab Simulink
+*.mat
+*.xml
+*.slxc
+
 # Folders
 build/
 .vscode/
-
